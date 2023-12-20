@@ -1,0 +1,51 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <title>جدول حضور وغياب الموظفين</title>
+</head>
+
+<body>
+  <div class=" container-fluid mt-3">
+    <div class="row">
+      <div class="col-md-4">
+        <label for="employeeName" class="form-label text-right">اسم الموظف:</label>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" id="employeeName">
+          <button type="button" class="btn btn-primary" onclick="addEmployee()">إضافة موظف</button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label for="month" class="form-label text-right">اختر الشهر:</label>
+        <select class="form-select month-selector" id="month">
+          <!-- options -->
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="search" class="form-label text-right">ابحث عن موظف:</label>
+        <input type="text" class="form-control" id="search" oninput="searchEmployee()">
+      </div>
+    </div>
+  </div>
+
+  <div class=" container-fluid">
+    <table class="table table-bordered">
+      <thead>
+        <tr id="dayHeader">
+          <th class="text-right">اسم الموظف</th>
+        </tr>
+      </thead>
+      <tbody id="employeeTableBody"></tbody>
+    </table>
+  </div>
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
