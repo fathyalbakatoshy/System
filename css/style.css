@@ -1,28 +1,42 @@
-:root {
-  direction: ltr;
-}
-
+/* style.css */
 body {
-  padding: 20px;
+  padding: 1%;
+  direction: lte;
+  font-size: 12px; /* تصغير حجم الخط */
 }
 
 .container {
-  margin-bottom: 20px;
+  margin-bottom: 1%;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
-  margin-top: 20px;
-}
-
-th,
-td {
+  margin-top: 1%;
   text-align: center;
 }
 
 th {
   background-color: #f8f9fa;
+  padding: 1%; /* تصغير حجم الحواف */
+}
+
+th,
+td {
+  padding: 0.5%; /* تصغير حجم الحواف */
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  font-size: 12px !important; /* تصغير حجم الخط */
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
 }
 
 .table>:not(caption)>*>* {
-  padding: 0 !important;}
+  padding: 0.1rem 0.1rem;
+}

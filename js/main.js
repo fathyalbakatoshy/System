@@ -1,51 +1,67 @@
 // main.js
 document.addEventListener("DOMContentLoaded", () => {
   let monthSelector = document.getElementById("month");
+  let yearSelector = document.getElementById("year");
 
   generateTable();
 
   monthSelector.addEventListener("change", () => {
     generateTable();
   });
+
+  yearSelector.addEventListener("change", () => {
+    generateTable();
+  });
 });
 
 function generateTable() {
   let monthSelector = document.getElementById("month");
+  let yearSelector = document.getElementById("year");
   let dayHeader = document.getElementById("dayHeader");
   let employeeTableBody = document.getElementById("employeeTableBody");
 
   dayHeader.innerHTML = "";
 
-  let months = [
-    "يناير",
-    "فبراير",
-    "مارس",
-    "إبريل",
-    "مايو",
-    "يونيو",
-    "يوليو",
-    "أغسطس",
-    "سبتمبر",
-    "أكتوبر",
-    "نوفمبر",
-    "ديسمبر",
-  ];
+  let weekdays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+
+  if (yearSelector.childElementCount === 0) {
+    let currentYear = new Date().getFullYear();
+    for (let year = currentYear; year <= currentYear + 5; year++) {
+      let option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      yearSelector.appendChild(option);
+    }
+  }
 
   if (monthSelector.childElementCount === 0) {
+    let months = [
+      "يناير",
+      "فبراير",
+      "مارس",
+      "إبريل",
+      "مايو",
+      "يونيو",
+      "يوليو",
+      "أغسطس",
+      "سبتمبر",
+      "أكتوبر",
+      "نوفمبر",
+      "ديسمبر",
+    ];
+
     for (let month = 0; month < 12; month++) {
-        let option = document.createElement("option");
-        option.value = month;
-        option.textContent = months[month];
-        monthSelector.appendChild(option);
+      let option = document.createElement("option");
+      option.value = month;
+      option.textContent = months[month];
+      monthSelector.appendChild(option);
     }
   }
 
   let selectedMonth = parseInt(monthSelector.value);
-  let daysInMonth = new Date(
-    new Date().getFullYear(),
-    selectedMonth + 1,
-    0
-  ).getDate();
+  let selectedYear = parseInt(yearSelector.value);
+
+  let daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
   let thName = document.createElement("th");
   thName.textContent = "اسم الموظف";
@@ -54,7 +70,9 @@ function generateTable() {
   for (let i = 1; i <= daysInMonth + 3; i++) {
     let th = document.createElement("th");
     if (i <= daysInMonth) {
-      th.textContent = `يوم ${i}`;
+      let dayIndex = new Date(selectedYear, selectedMonth, i).getDay();
+      // th.textContent = `${weekdays[dayIndex]} يوم ${i}`;
+      th.textContent = `${weekdays[dayIndex]} ${i}`
     } else if (i === daysInMonth + 1) {
       th.textContent = "الإجمالي";
     } else if (i === daysInMonth + 2) {
@@ -67,7 +85,7 @@ function generateTable() {
 
   employeeTableBody.innerHTML = "";
 
-  let employeesData = getEmployeesData(selectedMonth);
+  let employeesData = getEmployeesData(selectedYear, selectedMonth);
   employeesData.forEach((employee) => {
     let tr = document.createElement("tr");
 
@@ -78,7 +96,7 @@ function generateTable() {
     let deleteButton = document.createElement("button");
     deleteButton.textContent = "حذف";
     deleteButton.classList.add("btn", "btn-danger");
-    deleteButton.addEventListener("click", () => deleteEmployee(employee, selectedMonth));
+    deleteButton.addEventListener("click", () => deleteEmployee(employee, selectedYear, selectedMonth));
     tdDelete.appendChild(deleteButton);
 
     tr.appendChild(tdName);
@@ -99,7 +117,7 @@ function generateTable() {
       }
 
       td.addEventListener("click", () =>
-        toggleAttendance(employee, day, selectedMonth)
+        toggleAttendance(employee, day, selectedYear, selectedMonth)
       );
       tr.appendChild(td);
     }
@@ -112,7 +130,7 @@ function generateTable() {
     let notesInput = document.createElement("input");
     notesInput.type = "text";
     notesInput.value = employee.notes || "";
-    notesInput.addEventListener("change", (event) => updateNotes(employee, selectedMonth, event.target.value));
+    notesInput.addEventListener("change", (event) => updateNotes(employee, selectedYear, selectedMonth, event.target.value));
     tdNotes.appendChild(notesInput);
     tr.appendChild(tdNotes);
 
@@ -122,21 +140,21 @@ function generateTable() {
   });
 }
 
-function deleteEmployee(employee, selectedMonth) {
+function deleteEmployee(employee, year, month) {
   let confirmDelete = confirm(`هل أنت متأكد من حذف الموظف ${employee.name}؟`);
 
   if (confirmDelete) {
-    let employeesData = getEmployeesData(selectedMonth);
+    let employeesData = getEmployeesData(year, month);
     let updatedEmployeesData = employeesData.filter(
       (data) => data.name !== employee.name
     );
-    setEmployeesData(updatedEmployeesData, selectedMonth);
+    setEmployeesData(updatedEmployeesData, year, month);
 
     generateTable();
   }
 }
 
-function toggleAttendance(employee, day, selectedMonth) {
+function toggleAttendance(employee, day, year, month) {
   let attendanceStatus = employee.attendance[day] || "";
 
   if (attendanceStatus === "ح") {
@@ -145,7 +163,7 @@ function toggleAttendance(employee, day, selectedMonth) {
     employee.attendance[day] = "ح";
   }
 
-  let employeesData = getEmployeesData(selectedMonth);
+  let employeesData = getEmployeesData(year, month);
   let updatedEmployeesData = employeesData.map((data) => {
     if (data.name === employee.name) {
       return employee;
@@ -154,15 +172,15 @@ function toggleAttendance(employee, day, selectedMonth) {
     }
   });
 
-  setEmployeesData(updatedEmployeesData, selectedMonth);
+  setEmployeesData(updatedEmployeesData, year, month);
 
   generateTable();
 }
 
-function updateNotes(employee, selectedMonth, notes) {
+function updateNotes(employee, year, month, notes) {
   employee.notes = notes;
 
-  let employeesData = getEmployeesData(selectedMonth);
+  let employeesData = getEmployeesData(year, month);
   let updatedEmployeesData = employeesData.map((data) => {
     if (data.name === employee.name) {
       return employee;
@@ -171,7 +189,7 @@ function updateNotes(employee, selectedMonth, notes) {
     }
   });
 
-  setEmployeesData(updatedEmployeesData, selectedMonth);
+  setEmployeesData(updatedEmployeesData, year, month);
 
   generateTable();
 }
@@ -193,19 +211,22 @@ function searchEmployee() {
   });
 }
 
-function getEmployeesData(month) {
-  return JSON.parse(localStorage.getItem(`employeesData_${month}`)) || [];
+function getEmployeesData(year, month) {
+  let key = `employeesData_${year}_${month}`;
+  return JSON.parse(localStorage.getItem(key)) || [];
 }
 
-function setEmployeesData(data, month) {
-  localStorage.setItem(`employeesData_${month}`, JSON.stringify(data));
+function setEmployeesData(data, year, month) {
+  let key = `employeesData_${year}_${month}`;
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
 function addEmployee() {
   let monthSelector = document.getElementById("month");
+  let yearSelector = document.getElementById("year");
   let employeeNameInput = document.getElementById("employeeName");
 
-  let employeesData = getEmployeesData(monthSelector.value);
+  let employeesData = getEmployeesData(yearSelector.value, monthSelector.value);
   let employeeName = employeeNameInput.value.trim();
 
   if (!employeeName) {
@@ -213,12 +234,9 @@ function addEmployee() {
     return;
   }
 
+  let selectedYear = parseInt(yearSelector.value);
   let selectedMonth = parseInt(monthSelector.value);
-  let daysInMonth = new Date(
-    new Date().getFullYear(),
-    selectedMonth + 1,
-    0
-  ).getDate();
+  let daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
   let employeeData = employeesData.find(
     (employee) => employee.name === employeeName
@@ -240,7 +258,7 @@ function addEmployee() {
     employeesData.push(employeeData);
   }
 
-  setEmployeesData(employeesData, selectedMonth);
+  setEmployeesData(employeesData, selectedYear, selectedMonth);
 
   generateTable();
 
